@@ -1,10 +1,10 @@
-const { verify, decode } = require ('jsonwebtoken')
-const jsonSecret = require ('../config/jsonSecret')
+const { verify, decode } = require('jsonwebtoken')
+const jsonSecret = require('../config/jsonSecret')
 
 module.exports = async (req, res, next) => {
-    const token = req.headers.authorization 
+    const token = req.headers.authorization
 
-    if(!token) {
+    if (!token) {
         return res.status(401).send('Access token nao informado')
     }
 
@@ -13,13 +13,12 @@ module.exports = async (req, res, next) => {
     try {
         verify(accessToken, jsonSecret.secret)
 
-        const {id, email} = await decode(accessToken)
+        const { id, email} = await decode(accessToken)
 
         req.usuarioId = id
         req.usuarioEmail = email
 
         return next()
-
     } catch (error) {
         res.status(401).send('Usuario não autorizado')
     }

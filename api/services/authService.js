@@ -12,24 +12,25 @@ class AuthService {
             }
         })
 
-        if(!usuario) {
+        if (!usuario) {
             throw new Error('Usuario não cadastrado')
         }
 
-        const senhasIguais = await compare(dto.senha, usuario.senha)
+        const senhaIguais = await compare(dto.senha, usuario.senha)
 
-        if(!senhasIguais) {
+        if (!senhaIguais) {
             throw new Error('Usuario ou senha invalido')
         }
 
-        const acessToken = sign({
+        const accessToken = sign({
             id: usuario.id,
-            email: usuario.email,
+            email: usuario.email
         }, jsonSecret.secret, {
             expiresIn: 86400
         })
 
-        return { acessToken }
+        return { accessToken }
+        
     }
 }
 

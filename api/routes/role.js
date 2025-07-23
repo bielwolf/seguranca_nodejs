@@ -1,13 +1,13 @@
-const { Router } = require('express');
-const RoleController = require('../controllers/roleController');
+const { Router } = require('express')
+const RoleController = require('../controllers/roleController')
 
-const router = Router();
+const router = Router()
 
-router 
+router
     .post('/roles', RoleController.cadastrar)
     .get('/roles', RoleController.buscarTodasRoles)
     .get('/roles/id/:id', RoleController.buscarRolePorId)
+    .delete('/roles/id/:id', RoleController.deletarRolePorId)
     .put('/roles/id/:id', RoleController.editarRole)
-    .delete('/roles/id/:id', RoleController.deletarRolePorId);
 
-module.exports = router;
+module.exports = router

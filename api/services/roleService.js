@@ -8,8 +8,9 @@ class RoleService {
                 nome: dto.nome
             }
         })
-        if(role) {
-            throw new Error('Role ja cadastrado')
+
+        if (role) {
+            throw new Error('Role já cadastrada')
         }
 
         try {
@@ -26,48 +27,92 @@ class RoleService {
     }
 
     async buscarTodasRoles() {
-        const roles = await database.roles.findAll()
+        const roles = await database.roles.findAll({
+            include: [
+                {
+                    model: database.permissoes,
+                    as: 'roles_das_permissoes',
+                    attributes: ['id', 'nome', 'descricao'],
+                    through: {
+                        attributes: [],
+                    }
+                }
+            ]
+        })
+
         return roles
     }
 
     async buscarRolePorId(id) {
+        const role = await database.roles.findOne({
+            include: [
+                {
+                    model: database.permissoes,
+                    as: 'roles_das_permissoes',
+                    attributes: ['id', 'nome', 'descricao'],
+                    through: {
+                        attributes: [],
+                    }
+                }
+            ],
+            where: {
+                id: id
+            }
+        })
+
+        if (!role) {
+            throw new Error('Role informada não cadastrada!')
+        }
+
+        return role
+    }
+
+    async deletarRolePorId(id) {
         const role = await database.roles.findOne({
             where: {
                 id: id
             }
         })
 
-        if(!role) {
+        if (!role) {
             throw new Error('Role informada não cadastrada!')
         }
-    }
-
-    async editarRole(dto) {
-        const role = await this.buscarRolePorId(dto.id) 
 
         try {
-            role.nome = dto.nome,
-            role.descricao = dto.descricao
-            await role.save()
-            return await role.reload()
-            } catch (error) {
-                throw new Error('Erro ao editar role')
-        }
-    }
-
-    async deletarRolePorId(id) {
-        await this.buscarRolePorId(id)
-
-        try {
-            await role.destroy({
+            await database.roles.destroy({
                 where: {
                     id: id
                 }
             })
-            } catch (error) {
-                throw new Error('Erro ao deletar o role')
+        } catch (error) {
+            console.error('Message error: ', error.message)
+            throw error
+        }
+    }
+
+    async editarRole(dto) {
+        const role = await database.roles.findOne({
+            where: {
+                id: dto.id
+            }
+        })
+
+        if (!role) {
+            throw new Error('Role informada não cadastrada!')
+        }
+
+        try {
+            role.nome = dto.nome,
+            role.descricao = dto.descricao
+
+            await role.save()
+
+            return await role.reload()
+        } catch (error) {
+            console.error('Message error: ', error.message)
+            throw error
         }
     }
 }
 
-module.exports = RoleService;
+module.exports = RoleService
